@@ -9,35 +9,47 @@ import com.google.gson.FieldNamingPolicy;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
-public class EarthquakeAsyncTask {
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
+public class EarthquakeAsyncTask extends AsyncTask{
 
     private RecyclerView recyclerView;
+    private Earthquake[] earthquakes;
 
-    public EarthquakeAsyncTask(){
-
+    public EarthquakeAsyncTask(RecyclerView recyclerView){
+        this.recyclerView = recyclerView;
     }
 
     // done in background
     @Override
-    protected String doInBackground(Long... params) {
+    protected Earthquake[] doInBackground(Long... params) {
 
-        recyclerView = (RecyclerView) findViewById(R.id.list);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        recyclerView.setLayoutManager(layoutManager);
 
         Gson gson = new GsonBuilder()
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
-
+        try {
+            URL url = new URL("http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php");
+            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+            InputStream in = connection.getInputStream();
+            earthquakes = gson.fromJson(new InputStreamReader(in), Earthquake[].class);
+        }catch (IOException ex){
+            ex.getMessage();
+        }
+        return earthquakes;
     }
 
 
     //gets done on UI thread
     @Override
-    protected void onPostExecute() {
-        super.onPostExecute();
-
+    protected void onPostExecute(Earthquake[] earthquakes) {
+        super.onPostExecute(earthquakes);
+        EarthquakeRecyclerViewAdapter earthquakeRecyclerViewAdapter = new EarthquakeRecyclerViewAdapter(earthquakes);
+        recyclerView.setAdapter(earthquakeRecyclerViewAdapter);
     }
 
 }
