@@ -33,7 +33,7 @@ public class EarthquakeAsyncTask extends AsyncTask{
                 .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
                 .create();
         try {
-            URL url = new URL("http://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php");
+            URL url = new URL("http://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/significant_month.geojson");
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             InputStream in = connection.getInputStream();
             earthquakes = gson.fromJson(new InputStreamReader(in), Earthquake[].class);
